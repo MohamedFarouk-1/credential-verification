@@ -1,18 +1,28 @@
 import React from "react";
-import UploadForm from "./UploadForm";
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import UploadForm from "./pages/UploadForm"; // ✅ Make sure this is correct
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>Credential Verification System</h1>
-        <p>Upload your credentials and verify them securely.</p>
-        <UploadForm />
-      </header>
-    </div>
+    <Router>
+      <Navbar />
+      <div className="container mt-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<UploadForm />} /> {/* ✅ Ensure this exists */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </div>
+      <Footer />
+    </Router>
   );
 }
 

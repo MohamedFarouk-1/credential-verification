@@ -1,81 +1,72 @@
 const express = require("express");
-const multer = require("multer");
 const cors = require("cors");
+const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
 const app = express();
-const PORT = process.env.PORT || 5001; // ✅ Ensure it works on Render
+const PORT = process.env.PORT || 5001;
 
-// ✅ Allow Netlify frontend to access the backend
-app.use(cors({
-  origin: ["https://jade-twilight-51fa8c.netlify.app"], // ✅ Replace with your Netlify URL
-  methods: ["GET", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type"],
-  credentials: true
-}));
-
-// ✅ Middleware for JSON parsing
+app.use(cors()); // ✅ Allow frontend requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Ensure 'uploads' directory exists
+// ✅ Ensure "uploads" directory exists
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-// ✅ Set up Multer storage for file uploads
+// ✅ Configure Multer for file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir); // Save files in the 'uploads' folder
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname); // Add timestamp for uniqueness
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
 const upload = multer({ storage });
 
+// ✅ Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // ✅ File Upload Endpoint
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded." });
+    return res.status(400).json({ message: "No file uploaded" });
   }
-
-  res.json({
-    message: "File uploaded successfully!",
-    file: req.file,
-    url: `${process.env.BACKEND_URL || "https://your-backend-service.onrender.com"}/uploads/${req.file.filename}`
-  });
+  res.json({ message: "File uploaded successfully!", file: req.file.filename });
 });
 
-// ✅ Serve Uploaded Files
-app.use("/uploads", express.static(uploadDir));
-
-// ✅ Fetch Uploaded Files
+// ✅ Fetch Uploaded Files Endpoint
 app.get("/files", (req, res) => {
   fs.readdir(uploadDir, (err, files) => {
     if (err) {
-      return res.status(500).json({ message: "Error reading files." });
+      return res.status(500).json({ message: "Unable to scan files" });
     }
     res.json({ files });
   });
 });
 
-// ✅ Delete File Endpoint
-app.delete("/delete/:filename", (req, res) => {
-  const filePath = path.join(uploadDir, req.params.filename);
+// ✅ Start Server
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Failed to delete file." });
-    }
-    res.json({ message: "File deleted successfully!" });
+// ✅ Handle unexpected shutdowns
+process.on("SIGTERM", () => {
+  server.close(() => {
+    console.log("Server closed due to SIGTERM");
+    process.exit(0);
   });
 });
 
-// ✅ Ensure the server runs on the correct port
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+process.on("SIGINT", () => {
+  server.close(() => {
+    console.log("Server closed due to SIGINT");
+    process.exit(0);
+  });
 });
+
