@@ -1,9 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import UploadForm from "./pages/UploadForm"; // ✅ Make sure this is imported
+import UploadForm from "./pages/UploadForm"; // ✅ Ensure this is correctly imported
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -11,7 +10,6 @@ import Register from "./pages/Register";
 function App() {
   return (
     <Router>
-      <Navbar />
       <div className="container mt-4">
         <Routes>
           <Route path="/" element={<Home />} />
