@@ -4,6 +4,7 @@ const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // Store error messages
 
   const backendURL = "https://credential-verification.onrender.com";
 
@@ -36,6 +37,7 @@ const UploadForm = () => {
     }
 
     setIsUploading(true);
+    setErrorMessage("");
 
     const formData = new FormData();
     formData.append("file", file); // ✅ File key must match backend key
@@ -44,6 +46,9 @@ const UploadForm = () => {
       const response = await fetch(`${backendURL}/upload`, {
         method: "POST",
         body: formData,
+        headers: {
+          Accept: "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -57,7 +62,7 @@ const UploadForm = () => {
       fetchFiles(); // Refresh uploaded files list
     } catch (error) {
       console.error("Error uploading file:", error);
-      alert("Failed to upload file.");
+      setErrorMessage("Failed to upload file. Please try again.");
     }
 
     setIsUploading(false);
@@ -67,6 +72,7 @@ const UploadForm = () => {
     <div className="container mt-5">
       <div className="card shadow-lg p-4">
         <h2 className="text-center mb-3">Upload Your Credential</h2>
+        {errorMessage && <p className="text-danger text-center">{errorMessage}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Select a file:</label>

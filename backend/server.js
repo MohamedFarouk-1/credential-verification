@@ -7,7 +7,11 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors()); // ✅ Allow frontend requests
+app.use(cors({
+  origin: "*", // Allow all origins
+  methods: "GET,POST",
+  allowedHeaders: "Content-Type"
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -27,7 +31,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only JPEG, PNG, and PDF are allowed."));
+    }
+  },
+});
 
 // ✅ Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -69,4 +84,3 @@ process.on("SIGINT", () => {
     process.exit(0);
   });
 });
-

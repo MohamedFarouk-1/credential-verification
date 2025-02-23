@@ -20,7 +20,7 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/upload">Upload</Link> {/* ✅ Ensure this exists */}
+              <Link className="nav-link" to="/upload">Upload</Link> {/* ✅ Ensures upload page is accessible */}
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/dashboard">Dashboard</Link>
