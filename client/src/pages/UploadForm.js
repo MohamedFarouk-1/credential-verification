@@ -5,7 +5,7 @@ const UploadForm = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  const backendURL = "http://localhost:5001";
+  const backendURL = "https://credential-verification.onrender.com";
 
   useEffect(() => {
     fetchFiles();
