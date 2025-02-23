@@ -45,25 +45,39 @@ const upload = multer({
 });
 
 // ✅ Serve uploaded files statically
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// ✅ File Upload Endpoint
 app.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
-  res.json({ message: "File uploaded successfully!", file: req.file.filename });
+
+  try {
+    return res.json({
+      message: "File uploaded successfully!",
+      file: req.file.filename,
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return res.status(500).json({ message: "Server error while uploading file." });
+  }
 });
+
 
 // ✅ Fetch Uploaded Files Endpoint
 app.get("/files", (req, res) => {
-  fs.readdir(uploadDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ message: "Unable to scan files" });
-    }
-    res.json({ files });
-  });
+  try {
+    fs.readdir(uploadDir, (err, files) => {
+      if (err) {
+        console.error("Error reading files:", err);
+        return res.status(500).json({ message: "Unable to scan files." });
+      }
+      return res.json({ files });
+    });
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    return res.status(500).json({ message: "Server error while fetching files." });
+  }
 });
+
 
 // ✅ Start Server
 const server = app.listen(PORT, () => {
